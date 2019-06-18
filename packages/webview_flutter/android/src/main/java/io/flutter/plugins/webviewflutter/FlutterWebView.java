@@ -50,9 +50,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       registerJavaScriptChannelNames((List<String>) params.get(JS_CHANNEL_NAMES_FIELD));
     }
 
-    Log.e("logui", "keyset - " + params.get("settings"));
-
-
     if(params.containsKey("hasDownloadCallback")) {
       webView.setDownloadListener(new DownloadListener() {
         public void onDownloadStart(String url, String userAgent,
