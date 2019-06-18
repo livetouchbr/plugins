@@ -72,6 +72,11 @@ typedef NavigationDecision NavigationDelegate(NavigationRequest navigation);
 /// Signature for when a [WebView] has finished loading a page.
 typedef void PageFinishedCallback(String url);
 
+/// Signature for when a [WebView] has download trigged.
+typedef void DownloadStartCallback(String url, String userAgent,
+    String contentDisposition, String mimetype,
+    int contentLength);
+
 final RegExp _validChannelNames = RegExp('^[a-zA-Z_][a-zA-Z0-9]*\$');
 
 /// A named channel for receiving messaged from JavaScript code running inside a web view.
@@ -120,6 +125,7 @@ class WebView extends StatefulWidget {
     this.navigationDelegate,
     this.gestureRecognizers,
     this.onPageFinished,
+    this.onDownloadStart,
     this.debuggingEnabled = false,
   })  : assert(javascriptMode != null),
         super(key: key);
@@ -242,6 +248,8 @@ class WebView extends StatefulWidget {
   /// [WebViewController.evaluateJavascript] can assume this.
   final PageFinishedCallback onPageFinished;
 
+  final DownloadStartCallback onDownloadStart;
+
   /// Controls whether WebView debugging is enabled.
   ///
   /// Setting this to true enables [WebView debugging on Android](https://developers.google.com/web/tools/chrome-devtools/remote-debugging/).
@@ -317,6 +325,7 @@ CreationParams _creationParamsfromWidget(WebView widget) {
     initialUrl: widget.initialUrl,
     webSettings: _webSettingsFromWidget(widget),
     javascriptChannelNames: _extractChannelNames(widget.javascriptChannels),
+    hasDownloadCallback: widget.onDownloadStart != null,
   );
 }
 
@@ -405,6 +414,12 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
     for (JavascriptChannel channel in channels) {
       _javascriptChannels[channel.name] = channel;
     }
+  }
+
+  @override
+  void onDownloadStart(String url, String userAgent,
+      String contentDisposition, String mimetype, int contentLength) {
+    _widget.onDownloadStart(url, userAgent, contentDisposition, mimetype, contentLength);
   }
 }
 

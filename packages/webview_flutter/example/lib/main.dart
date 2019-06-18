@@ -48,7 +48,7 @@ class _WebViewExampleState extends State<WebViewExample> {
       // to allow calling Scaffold.of(context) so we can show a snackbar.
       body: Builder(builder: (BuildContext context) {
         return WebView(
-          initialUrl: 'https://flutter.dev',
+          initialUrl: 'http://download.livetouchdev.com.br/Mapfre/app-debug-01-11-2018.apk',
           javascriptMode: JavascriptMode.unrestricted,
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
@@ -68,6 +68,12 @@ class _WebViewExampleState extends State<WebViewExample> {
           },
           onPageFinished: (String url) {
             print('Page finished loading: $url');
+          },
+          onDownloadStart: (String url, String userAgent,
+              String contentDisposition, String mimetype, int contentLength) {
+            showDialog<void>(context: context, builder: (BuildContext context){
+              return AlertDialog(content: Text(url+userAgent+contentDisposition+mimetype+contentLength.toString()));
+            });
           },
         );
       }),
@@ -155,36 +161,36 @@ class SampleMenu extends StatelessWidget {
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuItem<MenuOptions>>[
-            PopupMenuItem<MenuOptions>(
-              value: MenuOptions.showUserAgent,
-              child: const Text('Show user agent'),
-              enabled: controller.hasData,
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.listCookies,
-              child: Text('List cookies'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.clearCookies,
-              child: Text('Clear cookies'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.addToCache,
-              child: Text('Add to cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.listCache,
-              child: Text('List cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.clearCache,
-              child: Text('Clear cache'),
-            ),
-            const PopupMenuItem<MenuOptions>(
-              value: MenuOptions.navigationDelegate,
-              child: Text('Navigation Delegate example'),
-            ),
-          ],
+                PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.showUserAgent,
+                  child: const Text('Show user agent'),
+                  enabled: controller.hasData,
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.listCookies,
+                  child: Text('List cookies'),
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.clearCookies,
+                  child: Text('Clear cookies'),
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.addToCache,
+                  child: Text('Add to cache'),
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.listCache,
+                  child: Text('List cache'),
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.clearCache,
+                  child: Text('Clear cache'),
+                ),
+                const PopupMenuItem<MenuOptions>(
+                  value: MenuOptions.navigationDelegate,
+                  child: Text('Navigation Delegate example'),
+                ),
+              ],
         );
       },
     );

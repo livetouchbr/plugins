@@ -25,6 +25,10 @@ abstract class WebViewPlatformCallbacksHandler {
 
   /// Invoked by [WebViewPlatformController] when a page has finished loading.
   void onPageFinished(String url);
+
+  /// Invoked by [WebViewPlatformController] when a download intent is trigged.
+  void onDownloadStart(String url, String userAgent,
+      String contentDisposition, String mimetype, int contentLength);
 }
 
 /// Interface for talking to the webview's platform implementation.
@@ -185,7 +189,7 @@ class WebSettings {
 /// Configuration to use when creating a new [WebViewPlatformController].
 class CreationParams {
   CreationParams(
-      {this.initialUrl, this.webSettings, this.javascriptChannelNames});
+      {this.initialUrl, this.webSettings, this.javascriptChannelNames, this.hasDownloadCallback});
 
   /// The initialUrl to load in the webview.
   ///
@@ -209,6 +213,8 @@ class CreationParams {
   // TODO(amirh): describe what should happen when postMessage is called once that code is migrated
   // to PlatformWebView.
   final Set<String> javascriptChannelNames;
+
+  final bool hasDownloadCallback;
 
   @override
   String toString() {

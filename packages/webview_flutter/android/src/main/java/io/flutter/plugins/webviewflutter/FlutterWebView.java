@@ -6,9 +6,13 @@ package io.flutter.plugins.webviewflutter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
+import android.webkit.DownloadListener;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -44,6 +48,19 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
     if (params.containsKey(JS_CHANNEL_NAMES_FIELD)) {
       registerJavaScriptChannelNames((List<String>) params.get(JS_CHANNEL_NAMES_FIELD));
+    }
+
+    Log.e("logui", "keyset - " + params.get("settings"));
+
+
+    if(params.containsKey("hasDownloadCallback")) {
+      webView.setDownloadListener(new DownloadListener() {
+        public void onDownloadStart(String url, String userAgent,
+                                    String contentDisposition, String mimetype,
+                                    long contentLength) {
+          flutterWebViewClient.onDownloadStart(url, userAgent, contentDisposition, mimetype, contentLength);
+        }
+      });
     }
 
     if (params.containsKey("initialUrl")) {

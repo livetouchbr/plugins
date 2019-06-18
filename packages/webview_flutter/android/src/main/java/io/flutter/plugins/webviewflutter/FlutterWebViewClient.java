@@ -72,6 +72,17 @@ class FlutterWebViewClient {
     methodChannel.invokeMethod("onPageFinished", args);
   }
 
+  void onDownloadStart(String url, String userAgent,
+                       String contentDisposition, String mimetype, long contentLength) {
+    Map<String, Object> args = new HashMap<>();
+    args.put("url", url);
+    args.put("userAgent", userAgent);
+    args.put("contentDisposition", contentDisposition);
+    args.put("mimetype", mimetype);
+    args.put("contentLength", contentLength);
+    methodChannel.invokeMethod("onDownloadStart", args);
+  }
+
   private void notifyOnNavigationRequest(
       String url, Map<String, String> headers, WebView webview, boolean isMainFrame) {
     HashMap<String, Object> args = new HashMap<>();
