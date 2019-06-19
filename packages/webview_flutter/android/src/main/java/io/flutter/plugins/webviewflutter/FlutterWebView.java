@@ -22,6 +22,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.platform.PlatformView;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -134,11 +136,16 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
   private void postUrl(MethodCall methodCall, Result result) {
     Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
     String url = (String) request.get("url");
-    byte[] body = (byte[]) request.get("body");
+    ArrayList<Byte> body = (ArrayList<Byte>) request.get("body");
     if (body == null) {
-      body = new byte[0];
+      body = new ArrayList();
     }
-    webView.postUrl(url, body);
+    byte[] array = new byte[body.size()];
+    for (int i = 0; i < body.size(); i++){
+      array[i] = body.get(i);
+    }
+
+    webView.postUrl(url, array);
     result.success(null);
   }
 
