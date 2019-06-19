@@ -110,6 +110,9 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       case "clearCache":
         clearCache(result);
         break;
+      case "postUrl":
+        postUrl(methodCall, result);
+        break;
       default:
         result.notImplemented();
     }
@@ -124,6 +127,18 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       headers = Collections.emptyMap();
     }
     webView.loadUrl(url, headers);
+    result.success(null);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void postUrl(MethodCall methodCall, Result result) {
+    Map<String, Object> request = (Map<String, Object>) methodCall.arguments;
+    String url = (String) request.get("url");
+    byte[] body = (byte[]) request.get("body");
+    if (body == null) {
+      body = new byte[0];
+    }
+    webView.postUrl(url, body);
     result.success(null);
   }
 

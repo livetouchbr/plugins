@@ -59,6 +59,11 @@ abstract class WebViewPlatformController {
         "WebView loadUrl is not implemented on the current platform");
   }
 
+  Future<void> postUrl(String url, List<int> body) {
+    throw UnimplementedError(
+        "WebView loadUrl is not implemented on the current platform");
+  }
+
   /// Updates the webview settings.
   ///
   /// Any non null field in `settings` will be set as the new setting value.

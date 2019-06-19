@@ -461,6 +461,16 @@ class WebViewController {
     return _webViewPlatformController.loadUrl(url, headers);
   }
 
+
+  Future<void> postUrl(
+    String url, {
+    List<int> body,
+  }) async {
+    assert(url != null);
+    _validateUrlString(url);
+    return _webViewPlatformController.postUrl(url, body);
+  }
+
   /// Accessor to the current URL that the WebView is displaying.
   ///
   /// If [WebView.initialUrl] was never specified, returns `null`.
