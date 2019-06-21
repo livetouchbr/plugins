@@ -74,8 +74,7 @@ typedef void PageFinishedCallback(String url);
 
 /// Signature for when a [WebView] has download trigged.
 typedef void DownloadStartCallback(String url, String userAgent,
-    String contentDisposition, String mimetype,
-    int contentLength);
+    String contentDisposition, String mimetype, int contentLength);
 
 final RegExp _validChannelNames = RegExp('^[a-zA-Z_][a-zA-Z0-9]*\$');
 
@@ -417,9 +416,10 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
   }
 
   @override
-  void onDownloadStart(String url, String userAgent,
-      String contentDisposition, String mimetype, int contentLength) {
-    _widget.onDownloadStart(url, userAgent, contentDisposition, mimetype, contentLength);
+  void onDownloadStart(String url, String userAgent, String contentDisposition,
+      String mimetype, int contentLength) {
+    _widget.onDownloadStart(
+        url, userAgent, contentDisposition, mimetype, contentLength);
   }
 }
 
@@ -461,10 +461,9 @@ class WebViewController {
     return _webViewPlatformController.loadUrl(url, headers);
   }
 
-
   Future<void> postUrl(
     String url, {
-    List<int> body,
+    String body,
   }) async {
     assert(url != null);
     _validateUrlString(url);

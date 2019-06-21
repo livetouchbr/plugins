@@ -48,22 +48,17 @@ class _WebViewExampleState extends State<WebViewExample> {
       // to allow calling Scaffold.of(context) so we can show a snackbar.
       body: Builder(builder: (BuildContext context) {
         return WebView(
-          initialUrl: 'http://download.livetouchdev.com.br/Mapfre/app-debug-01-11-2018.apk',
+          initialUrl: 'http://192.168.100.205:8000/',
           javascriptMode: JavascriptMode.unrestricted,
           onWebViewCreated: (WebViewController webViewController) {
             _controller.complete(webViewController);
+            webViewController.postUrl('http://192.168.100.205:8000/', body: "");
           },
-          // TODO(iskakaushik): Remove this when collection literals makes it to stable.
           // ignore: prefer_collection_literals
           javascriptChannels: <JavascriptChannel>[
             _toasterJavascriptChannel(context),
           ].toSet(),
           navigationDelegate: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              print('blocking navigation to $request}');
-              return NavigationDecision.prevent;
-            }
-            print('allowing navigation to $request');
             return NavigationDecision.navigate;
           },
           onPageFinished: (String url) {
