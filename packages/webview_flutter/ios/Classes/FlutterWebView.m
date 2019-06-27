@@ -74,10 +74,11 @@
     }];
     NSDictionary<NSString*, id>* settings = args[@"settings"];
     [self applySettings:settings];
+    
 
     NSString* initialUrl = args[@"initialUrl"];
     if ([initialUrl isKindOfClass:[NSString class]]) {
-      [self loadUrl:initialUrl];
+      [self loadUrl:initialUrl whitMethod:@"GET" withBody:(NULL)];
     }
   }
   return self;
@@ -92,6 +93,8 @@
     [self onUpdateSettings:call result:result];
   } else if ([[call method] isEqualToString:@"loadUrl"]) {
     [self onLoadUrl:call result:result];
+  }else if ([[call method] isEqualToString:@"postUrl"]) {
+    [self postUrl:call result:result];
   } else if ([[call method] isEqualToString:@"canGoBack"]) {
     [self onCanGoBack:call result:result];
   } else if ([[call method] isEqualToString:@"canGoForward"]) {
@@ -123,9 +126,20 @@
 }
 
 - (void)onLoadUrl:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if (![self loadRequest:[call arguments]]) {
+  if (![self loadRequestWithGet:[call arguments]]) {
     result([FlutterError
         errorWithCode:@"loadUrl_failed"
+              message:@"Failed parsing the URL"
+              details:[NSString stringWithFormat:@"Request was: '%@'", [call arguments]]]);
+  } else {
+    result(nil);
+  }
+}
+
+- (void)postUrl:(FlutterMethodCall*)call result:(FlutterResult)result {
+  if (![self loadRequestWithPost:[call arguments]]) {
+    result([FlutterError
+        errorWithCode:@"postUrl_failed"
               message:@"Failed parsing the URL"
               details:[NSString stringWithFormat:@"Request was: '%@'", [call arguments]]]);
   } else {
@@ -234,8 +248,6 @@
       NSNumber* mode = settings[key];
       [self updateJsMode:mode];
     } else if ([key isEqualToString:@"hasNavigationDelegate"]) {
-      NSNumber* hasDartNavigationDelegate = settings[key];
-      _navigationDelegate.hasDartNavigationDelegate = [hasDartNavigationDelegate boolValue];
     } else {
       NSLog(@"webview_flutter: unknown setting key: %@", key);
     }
@@ -256,37 +268,60 @@
   }
 }
 
-- (bool)loadRequest:(NSDictionary<NSString*, id>*)request {
-  if (!request) {
-    return false;
-  }
+- (bool)loadRequestWithPost:(NSDictionary<NSString*, id>*)request {
+    return [self loadRequest: request withMethod:@"POST"];
+}
 
-  NSString* url = request[@"url"];
-  if ([url isKindOfClass:[NSString class]]) {
-    id headers = request[@"headers"];
-    if ([headers isKindOfClass:[NSDictionary class]]) {
-      return [self loadUrl:url withHeaders:headers];
-    } else {
-      return [self loadUrl:url];
+- (bool)loadRequestWithGet:(NSDictionary<NSString*, id>*)request {
+    return [self loadRequest: request withMethod:@"GET"];
+}
+
+- (bool)loadRequest:(NSDictionary<NSString*, id>*)request withMethod:(NSString*) method{
+    if (!request) {
+        return false;
     }
-  }
-
-  return false;
+    
+    NSString* url = request[@"url"];
+    if ([url isKindOfClass:[NSString class]]) {
+        id headers = request[@"headers"];
+        
+        id body = request[@"body"];
+        
+        if(![body isKindOfClass:[NSString class]]){
+            body = @"";
+        }
+        
+        if ([headers isKindOfClass:[NSDictionary class]]) {
+            return [self loadUrl:url withHeaders:headers whitMethod:method withBody:body];
+        } else {
+            return [self loadUrl:url whitMethod:method withBody:body];
+        }
+    }
+    
+    return false;
 }
 
-- (bool)loadUrl:(NSString*)url {
-  return [self loadUrl:url withHeaders:[NSMutableDictionary dictionary]];
+- (bool)loadUrl:(NSString*)url whitMethod:(NSString*) method withBody: (NSString*) body{
+    return [self loadUrl:url withHeaders:[NSMutableDictionary dictionary] whitMethod:method withBody:body];
 }
 
-- (bool)loadUrl:(NSString*)url withHeaders:(NSDictionary<NSString*, NSString*>*)headers {
+- (bool)loadUrl:(NSString*)url withHeaders:(NSDictionary<NSString*, NSString*>*)headers
+     whitMethod:(NSString*) method withBody:(NSString*) body{
   NSURL* nsUrl = [NSURL URLWithString:url];
   if (!nsUrl) {
     return false;
   }
   NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:nsUrl];
-  [request setAllHTTPHeaderFields:headers];
-  [_webView loadRequest:request];
-  return true;
+    [request setAllHTTPHeaderFields:headers];
+    [request setHTTPMethod:method];
+    
+    if([method isEqualToString:@"POST"]){
+        NSData* data = [body dataUsingEncoding:NSUTF8StringEncoding];
+        [request setHTTPBody:data];
+    }
+    
+    [_webView loadRequest:request];
+    return true;
 }
 
 - (void)registerJavaScriptChannels:(NSSet*)channelNames

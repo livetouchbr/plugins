@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 
@@ -39,13 +40,15 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
         _platformCallbacksHandler.onPageFinished(call.arguments['url']);
         return null;
       case 'onDownloadStart':
-        _platformCallbacksHandler.onDownloadStart(
-            call.arguments['url'],
-            call.arguments['userAgent'],
-            call.arguments['contentDisposition'],
-            call.arguments['mimetype'],
-            call.arguments['contentLength']);
-        return null;
+        if(Platform.isAndroid){
+          _platformCallbacksHandler.onDownloadStart(
+              call.arguments['url'],
+              call.arguments['userAgent'],
+              call.arguments['contentDisposition'],
+              call.arguments['mimetype'],
+              call.arguments['contentLength']);
+          return null;
+        }
     }
     throw MissingPluginException(
         '${call.method} was invoked but has no handler');
